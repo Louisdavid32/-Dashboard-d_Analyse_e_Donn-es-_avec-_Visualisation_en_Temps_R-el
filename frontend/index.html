@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard d'Analyse de Données</title>
+    <!-- Tailwind CSS via CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Chart.js via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100 p-6">
+    <div class="container mx-auto">
+        <h1 class="text-3xl font-bold mb-6">Dashboard d'Analyse de Données</h1>
+
+        <!-- Filtres et recherche -->
+        <div class="mb-6">
+            <input type="text" id="searchInput" placeholder="Rechercher par produit..." class="p-2 border rounded">
+            <button id="searchButton" class="bg-blue-500 text-white p-2 rounded">Rechercher</button>
+        </div>
+
+        <!-- Graphiques -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Graphique des ventes -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-semibold mb-4">Ventes par Produit</h2>
+                <div class="chart-container" style="position: relative; height: 300px;">
+                    <canvas id="salesChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Graphique des performances des produits -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-semibold mb-4">Performances des Produits</h2>
+                <div class="chart-container" style="position: relative; height: 300px;">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Graphique des tendances du marché -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-semibold mb-4">Tendances du Marché</h2>
+                <div class="chart-container" style="position: relative; height: 300px;">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popup de chat -->
+    <div id="chatPopup" class="fixed bottom-4 right-4 hidden">
+        <div class="bg-white rounded-lg shadow-lg w-80">
+            <!-- En-tête du chat -->
+            <div class="bg-blue-500 text-white p-4 rounded-t-lg flex justify-between items-center">
+                <h3 class="text-lg font-semibold">ZEN AFRICA - Assistant Virtuel</h3>
+                <button id="closeChat" class="text-white hover:text-gray-200">×</button>
+            </div>
+
+            <!-- Corps du chat -->
+            <div id="chatBody" class="p-4 h-64 overflow-y-auto">
+                <div class="text-gray-700">Bonjour ! Je suis ZEN AFRICA, votre assistant virtuel. Comment puis-je vous aider aujourd'hui ?</div>
+            </div>
+
+            <!-- Champ de saisie -->
+            <div class="p-4 border-t">
+                <input type="text" id="chatInput" placeholder="Tapez votre message..." class="w-full p-2 border rounded">
+                <button id="sendButton" class="mt-2 bg-blue-500 text-white p-2 rounded w-full">Envoyer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bouton pour ouvrir le chat -->
+    <button id="openChat" class="fixed bottom-4 right-4 bg-blue-500 text-white p-4 rounded-full shadow-lg">
+        💬
+    </button>
+
+    <!-- Scripts JavaScript -->
+    <script>
+        // Variables pour stocker les graphiques et les données d'origine
+        let salesChart, performanceChart, trendChart;
+        let originalSalesData = null; // Stocke les données d'origine pour les ventes
+
+        // Fonction pour initialiser les graphiques
+        function initializeCharts(salesData, performanceData, trendData) {
+            // Configuration des graphiques
+            salesChart = new Chart(document.getElementById('salesChart'), {
+                type: 'bar',
+                data: salesData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            performanceChart = new Chart(document.getElementById('performanceChart'), {
+                type: 'line',
+                data: performanceData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            trendChart = new Chart(document.getElementById('trendChart'), {
+                type: 'pie',
+                data: trendData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                }
+            });
+        }
+
+        // Fonction pour récupérer les données depuis l'API Django
+        async function fetchData() {
+            try {
+                const salesResponse = await fetch('http://127.0.0.1:8000/api/sales/');
+                const performanceResponse = await fetch('http://127.0.0.1:8000/api/product-performance/');
+                const trendResponse = await fetch('http://127.0.0.1:8000/api/market-trends/');
+
+                const salesData = await salesResponse.json();
+                const performanceData = await performanceResponse.json();
+                const trendData = await trendResponse.json();
+
+                // Formater les données pour les graphiques
+                const formattedSalesData = {
+                    labels: salesData.map(sale => sale.product_name),
+                    datasets: [{
+                        label: 'Ventes',
+                        data: salesData.map(sale => sale.amount),
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                    }]
+                };
+
+                const formattedPerformanceData = {
+                    labels: performanceData.map(perf => perf.product_name),
+                    datasets: [{
+                        label: 'Performances',
+                        data: performanceData.map(perf => perf.customer_rating),
+                        backgroundColor: 'rgba(255, 159, 64, 0.6)',
+                    }]
+                };
+
+                const formattedTrendData = {
+                    labels: trendData.map(trend => trend.trend_name),
+                    datasets: [{
+                        label: 'Valeur',
+                        data: trendData.map(trend => trend.value),
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.6)',
+                            'rgba(54, 162, 235, 0.6)',
+                            'rgba(255, 206, 86, 0.6)',
+                            'rgba(75, 192, 192, 0.6)',
+                            'rgba(153, 102, 255, 0.6)',
+                        ],
+                    }]
+                };
+
+                // Stocker les données d'origine pour les ventes
+                originalSalesData = formattedSalesData;
+
+                // Initialiser les graphiques avec les données récupérées
+                initializeCharts(formattedSalesData, formattedPerformanceData, formattedTrendData);
+            } catch (error) {
+                console.error('Erreur lors de la récupération des données:', error);
+            }
+        }
+
+        // Fonction de recherche
+        document.getElementById('searchButton').addEventListener('click', () => {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+            // Filtrer les données d'origine
+            const filteredSales = originalSalesData.labels
+                .map((label, index) => ({ label, value: originalSalesData.datasets[0].data[index] }))
+                .filter(item => item.label.toLowerCase().includes(searchTerm));
+
+            // Mettre à jour le graphique avec les données filtrées
+            salesChart.data.labels = filteredSales.map(item => item.label);
+            salesChart.data.datasets[0].data = filteredSales.map(item => item.value);
+            salesChart.update();
+        });
+
+        // Ouvrir la popup de chat
+        document.getElementById('openChat').addEventListener('click', () => {
+            document.getElementById('chatPopup').classList.remove('hidden');
+        });
+
+        // Fermer la popup de chat
+        document.getElementById('closeChat').addEventListener('click', () => {
+            document.getElementById('chatPopup').classList.add('hidden');
+        });
+
+        // Envoyer un message au chatbot
+        document.getElementById('sendButton').addEventListener('click', async () => {
+            const userInput = document.getElementById('chatInput').value;
+
+            if (userInput.trim() === "") return;
+
+            // Ajouter le message de l'utilisateur au chat
+            const chatBody = document.getElementById('chatBody');
+            chatBody.innerHTML += `<div class="text-right text-gray-700 mb-2">${userInput}</div>`;
+
+            // Envoyer le message au backend
+            try {
+                const response = await fetch('http://127.0.0.1:8000/api/chatbot/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message: userInput }),
+                });
+
+                const data = await response.json();
+
+                // Ajouter la réponse du chatbot au chat
+                chatBody.innerHTML += `<div class="text-left text-gray-700 mb-2">${data.reply}</div>`;
+
+                // Si le chatbot renvoie un graphique, l'afficher
+                if (data.chart) {
+                    const chartContainer = document.createElement('div');
+                    chartContainer.innerHTML = `<canvas id="dynamicChart"></canvas>`;
+                    chatBody.appendChild(chartContainer);
+
+                    new Chart(document.getElementById('dynamicChart'), data.chart);
+                }
+            } catch (error) {
+                console.error('Erreur lors de la communication avec le chatbot:', error);
+            }
+
+            // Effacer le champ de saisie
+            document.getElementById('chatInput').value = '';
+        });
+
+        // Charger les données au démarrage
+        fetchData();
+    </script>
+</body>
+</html>

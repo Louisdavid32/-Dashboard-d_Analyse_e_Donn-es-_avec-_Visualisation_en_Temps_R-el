@@ -136,7 +136,7 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 CORS_ALLOWED_ORIGINS = [
-    "https://votre-app.vercel.app",
+    "https://template-visualisation.vercel.app",
     "http://localhost:5500",  # Autorise le frontend local
     "http://127.0.0.1:5500",  # Autorise le frontend local
     "http://localhost:3000",  # Pour le développement local

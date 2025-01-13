@@ -93,7 +93,7 @@ DATABASES = {
         'NAME': 'zenaf',
         'USER': 'louis',
         'PASSWORD': 'rxk9LNLGJTtJy56YGN3uNj6jSSZF0TfS',
-         'HOST': 'postgresql://louis:rxk9LNLGJTtJy56YGN3uNj6jSSZF0TfS@dpg-cu0lgt8gph6c73agdqm0-a.oregon-postgres.render.com/zenaf', 
+         'HOST': 'dpg-cu0lgt8gph6c73agdqm0-a', 
         'PORT': '5432',
     }
 }

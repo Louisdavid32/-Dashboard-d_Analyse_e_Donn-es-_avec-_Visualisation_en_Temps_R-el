@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-hf^6ga6@m&5ks0o1a^@0uz1r9+8w_xiev0&i%5fim$z3p896!y
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['https://backendapi-urkr.onrender.com','127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['backendapi-urkr.onrender.com', '127.0.0.1', 'localhost']
 
 
 
@@ -87,7 +87,7 @@ WSGI_APPLICATION = 'backend.wsgi.application'
     }
 }"""
 
-DATABASES = {
+"""DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'zenafrica',
@@ -96,7 +96,7 @@ DATABASES = {
          'HOST': 'localhost', 
         'PORT': '5432',
     }
-}
+}""" 
 
 
 # Password validation

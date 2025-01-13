@@ -87,16 +87,16 @@ WSGI_APPLICATION = 'backend.wsgi.application'
     }
 }"""
 
-"""DATABASES = {
+DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'zenafrica',
-        'USER': 'zenaf',
-        'PASSWORD': '147147',
-         'HOST': 'localhost', 
+        'NAME': 'zenaf',
+        'USER': 'louis',
+        'PASSWORD': 'rxk9LNLGJTtJy56YGN3uNj6jSSZF0TfS',
+         'HOST': 'postgresql://louis:rxk9LNLGJTtJy56YGN3uNj6jSSZF0TfS@dpg-cu0lgt8gph6c73agdqm0-a.oregon-postgres.render.com/zenaf', 
         'PORT': '5432',
     }
-}""" 
+}
 
 
 # Password validation
